@@ -9,86 +9,108 @@ import AddDebtModal from './components/AddDebtModal';
 import ConfirmModal from './components/ConfirmModal';
 import { Station, Session, Expense, DailyStats, CONFIG, DEFAULT_STATIONS, EXPENSE_CATEGORIES, CreditEntry, CreditTransaction, StoreTransaction, QUICK_PRICES } from './types';
 import { formatCurrency, generateId } from './utils';
-import { loadFromDB, saveToDB, DB_KEYS } from './db';
-import { TrendingUp, Wallet, Activity, AlertTriangle, PlusCircle, Trash2, Pencil, Save, X, Clock, Swords, Monitor, List, Users, Coffee, Gamepad, Gamepad2, Banknote, CheckCircle, RotateCcw, ShoppingBag, Plus, ChevronRight, Tags, FileText, ArrowDownCircle, ArrowUpCircle, Minus, ShoppingCart, RefreshCcw, Lock } from 'lucide-react';
+import { loadFromDB, saveToDB, DB_STORES } from './db';
+import { TrendingUp, Wallet, Activity, AlertTriangle, PlusCircle, Trash2, Pencil, Save, X, Clock, Swords, Monitor, List, Users, Coffee, Gamepad, Gamepad2, Banknote, CheckCircle, RotateCcw, ShoppingBag, Plus, ChevronRight, Tags, FileText, ArrowDownCircle, ArrowUpCircle, Minus, ShoppingCart, RefreshCcw, Lock, Loader2 } from 'lucide-react';
 
 const App: React.FC = () => {
+  // --- Loading State ---
+  const [isLoading, setIsLoading] = useState(true);
+
   // --- Auth State ---
   const [isLocked, setIsLocked] = useState(true);
   const [unlockCode, setUnlockCode] = useState('');
   const [authError, setAuthError] = useState('');
 
-  // --- State with Database Initialization ---
+  // --- State ---
   const [activeTab, setActiveTab] = useState('floor');
   
-  // Stations: Load from DB or use Default
-  const [stations, setStations] = useState<Station[]>(() => 
-    loadFromDB(DB_KEYS.STATIONS, DEFAULT_STATIONS)
-  );
-  
-  // Sessions
-  const [sessions, setSessions] = useState<Session[]>(() => 
-    loadFromDB(DB_KEYS.SESSIONS, [])
-  );
-  
-  // Expenses
-  const [expenses, setExpenses] = useState<Expense[]>(() => 
-    loadFromDB(DB_KEYS.EXPENSES, [])
-  );
-  
-  // Credits
-  const [credits, setCredits] = useState<CreditEntry[]>(() => 
-    loadFromDB(DB_KEYS.CREDITS, [])
-  );
-  
-  // Credit Transactions
-  const [creditTransactions, setCreditTransactions] = useState<CreditTransaction[]>(() => 
-    loadFromDB(DB_KEYS.CREDIT_TRANSACTIONS, [])
-  );
-  
-  // Store Transactions
-  const [storeTransactions, setStoreTransactions] = useState<StoreTransaction[]>(() => 
-    loadFromDB(DB_KEYS.STORE_TRANSACTIONS, [])
-  );
-
-  // Store Cart (Optional persistence)
+  // Initialize with empty/defaults, real data loads in useEffect
+  const [stations, setStations] = useState<Station[]>(DEFAULT_STATIONS);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [credits, setCredits] = useState<CreditEntry[]>([]);
+  const [creditTransactions, setCreditTransactions] = useState<CreditTransaction[]>([]);
+  const [storeTransactions, setStoreTransactions] = useState<StoreTransaction[]>([]);
   const [cart, setCart] = useState<Array<{
     id: string;
     name: string;
     unitPrice: number;
     quantity: number;
     total: number;
-  }>>(() => loadFromDB(DB_KEYS.CART, []));
+  }>>([]);
+
+  // --- Data Loading Effect ---
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [
+          loadedStations,
+          loadedSessions,
+          loadedExpenses,
+          loadedCredits,
+          loadedCreditTx,
+          loadedStoreTx,
+          loadedCart
+        ] = await Promise.all([
+          loadFromDB<Station>(DB_STORES.STATIONS),
+          loadFromDB<Session>(DB_STORES.SESSIONS),
+          loadFromDB<Expense>(DB_STORES.EXPENSES),
+          loadFromDB<CreditEntry>(DB_STORES.CREDITS),
+          loadFromDB<CreditTransaction>(DB_STORES.CREDIT_TRANSACTIONS),
+          loadFromDB<StoreTransaction>(DB_STORES.STORE_TRANSACTIONS),
+          loadFromDB<any>(DB_STORES.CART),
+        ]);
+
+        // Only use loaded stations if they exist, otherwise keep defaults (fresh install)
+        if (loadedStations && loadedStations.length > 0) setStations(loadedStations);
+        if (loadedSessions) setSessions(loadedSessions);
+        if (loadedExpenses) setExpenses(loadedExpenses);
+        if (loadedCredits) setCredits(loadedCredits);
+        if (loadedCreditTx) setCreditTransactions(loadedCreditTx);
+        if (loadedStoreTx) setStoreTransactions(loadedStoreTx);
+        if (loadedCart) setCart(loadedCart);
+
+      } catch (error) {
+        console.error("Failed to load data from DB:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // --- Persistence Effects (Save on Change) ---
+  // Using IndexedDB is async, but we fire-and-forget inside useEffect.
+  // Ideally, robust apps use a status indicator for saving, but for this UX we keep it seamless.
 
   useEffect(() => {
-    saveToDB(DB_KEYS.STATIONS, stations);
-  }, [stations]);
+    if (!isLoading) saveToDB(DB_STORES.STATIONS, stations);
+  }, [stations, isLoading]);
 
   useEffect(() => {
-    saveToDB(DB_KEYS.SESSIONS, sessions);
-  }, [sessions]);
+    if (!isLoading) saveToDB(DB_STORES.SESSIONS, sessions);
+  }, [sessions, isLoading]);
 
   useEffect(() => {
-    saveToDB(DB_KEYS.EXPENSES, expenses);
-  }, [expenses]);
+    if (!isLoading) saveToDB(DB_STORES.EXPENSES, expenses);
+  }, [expenses, isLoading]);
 
   useEffect(() => {
-    saveToDB(DB_KEYS.CREDITS, credits);
-  }, [credits]);
+    if (!isLoading) saveToDB(DB_STORES.CREDITS, credits);
+  }, [credits, isLoading]);
 
   useEffect(() => {
-    saveToDB(DB_KEYS.CREDIT_TRANSACTIONS, creditTransactions);
-  }, [creditTransactions]);
+    if (!isLoading) saveToDB(DB_STORES.CREDIT_TRANSACTIONS, creditTransactions);
+  }, [creditTransactions, isLoading]);
 
   useEffect(() => {
-    saveToDB(DB_KEYS.STORE_TRANSACTIONS, storeTransactions);
-  }, [storeTransactions]);
+    if (!isLoading) saveToDB(DB_STORES.STORE_TRANSACTIONS, storeTransactions);
+  }, [storeTransactions, isLoading]);
 
   useEffect(() => {
-    saveToDB(DB_KEYS.CART, cart);
-  }, [cart]);
+    if (!isLoading) saveToDB(DB_STORES.CART, cart);
+  }, [cart, isLoading]);
 
 
   // Expenses Form State
@@ -703,6 +725,18 @@ const App: React.FC = () => {
   const totalFoodDebt = unpaidCredits.reduce((acc, c) => acc + c.foodAmount, 0);
 
   // --- Render ---
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+         <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
+            <h2 className="text-white font-bold text-xl">جاري تحميل قاعدة البيانات...</h2>
+            <p className="text-slate-400 text-sm">يتم استرجاع السجلات والمحفوظات</p>
+         </div>
+      </div>
+    );
+  }
 
   if (isLocked) {
     return (
