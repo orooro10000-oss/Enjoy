@@ -9,7 +9,7 @@ import AddDebtModal from './components/AddDebtModal';
 import ConfirmModal from './components/ConfirmModal';
 import { Station, Session, Expense, DailyStats, CONFIG, DEFAULT_STATIONS, EXPENSE_CATEGORIES, CreditEntry, CreditTransaction, StoreTransaction, QUICK_PRICES } from './types';
 import { formatCurrency, generateId } from './utils';
-import { TrendingUp, Wallet, Activity, AlertTriangle, PlusCircle, Trash2, Pencil, Save, X, Clock, Swords, Monitor, List, Users, Coffee, Gamepad, Gamepad2, Banknote, CheckCircle, RotateCcw, ShoppingBag, Plus, ChevronRight, Tags, FileText, Printer, ArrowDownCircle, ArrowUpCircle, Minus, ShoppingCart, RefreshCcw, Lock } from 'lucide-react';
+import { TrendingUp, Wallet, Activity, AlertTriangle, PlusCircle, Trash2, Pencil, Save, X, Clock, Swords, Monitor, List, Users, Coffee, Gamepad, Gamepad2, Banknote, CheckCircle, RotateCcw, ShoppingBag, Plus, ChevronRight, Tags, FileText, ArrowDownCircle, ArrowUpCircle, Minus, ShoppingCart, RefreshCcw, Lock } from 'lucide-react';
 
 const App: React.FC = () => {
   // --- Auth State ---
@@ -1607,9 +1607,7 @@ const App: React.FC = () => {
                   <span className="w-2 h-8 bg-yellow-500 rounded-full inline-block"></span>
                   التقرير المالي اليومي المفصل
                  </h2>
-                 <button onClick={() => window.print()} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg flex items-center gap-2 transition-colors print:hidden">
-                    <Printer className="w-4 h-4" /> طباعة التقرير
-                 </button>
+                 {/* Print button removed */}
               </div>
 
               {/* 1. High Level Summary Cards */}
