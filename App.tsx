@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import StationCard from './components/StationCard';
 import CheckoutModal from './components/CheckoutModal';
@@ -9,6 +9,7 @@ import AddDebtModal from './components/AddDebtModal';
 import ConfirmModal from './components/ConfirmModal';
 import { Station, Session, Expense, DailyStats, CONFIG, DEFAULT_STATIONS, EXPENSE_CATEGORIES, CreditEntry, CreditTransaction, StoreTransaction, QUICK_PRICES } from './types';
 import { formatCurrency, generateId } from './utils';
+import { loadFromDB, saveToDB, DB_KEYS } from './db';
 import { TrendingUp, Wallet, Activity, AlertTriangle, PlusCircle, Trash2, Pencil, Save, X, Clock, Swords, Monitor, List, Users, Coffee, Gamepad, Gamepad2, Banknote, CheckCircle, RotateCcw, ShoppingBag, Plus, ChevronRight, Tags, FileText, ArrowDownCircle, ArrowUpCircle, Minus, ShoppingCart, RefreshCcw, Lock } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -17,17 +18,79 @@ const App: React.FC = () => {
   const [unlockCode, setUnlockCode] = useState('');
   const [authError, setAuthError] = useState('');
 
-  // --- State ---
+  // --- State with Database Initialization ---
   const [activeTab, setActiveTab] = useState('floor');
-  const [stations, setStations] = useState<Station[]>(DEFAULT_STATIONS);
   
-  // In a real app, these would be in a DB. Here we use memory + basic effect persistence logic if needed
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [credits, setCredits] = useState<CreditEntry[]>([]);
-  const [creditTransactions, setCreditTransactions] = useState<CreditTransaction[]>([]);
-  const [storeTransactions, setStoreTransactions] = useState<StoreTransaction[]>([]);
+  // Stations: Load from DB or use Default
+  const [stations, setStations] = useState<Station[]>(() => 
+    loadFromDB(DB_KEYS.STATIONS, DEFAULT_STATIONS)
+  );
   
+  // Sessions
+  const [sessions, setSessions] = useState<Session[]>(() => 
+    loadFromDB(DB_KEYS.SESSIONS, [])
+  );
+  
+  // Expenses
+  const [expenses, setExpenses] = useState<Expense[]>(() => 
+    loadFromDB(DB_KEYS.EXPENSES, [])
+  );
+  
+  // Credits
+  const [credits, setCredits] = useState<CreditEntry[]>(() => 
+    loadFromDB(DB_KEYS.CREDITS, [])
+  );
+  
+  // Credit Transactions
+  const [creditTransactions, setCreditTransactions] = useState<CreditTransaction[]>(() => 
+    loadFromDB(DB_KEYS.CREDIT_TRANSACTIONS, [])
+  );
+  
+  // Store Transactions
+  const [storeTransactions, setStoreTransactions] = useState<StoreTransaction[]>(() => 
+    loadFromDB(DB_KEYS.STORE_TRANSACTIONS, [])
+  );
+
+  // Store Cart (Optional persistence)
+  const [cart, setCart] = useState<Array<{
+    id: string;
+    name: string;
+    unitPrice: number;
+    quantity: number;
+    total: number;
+  }>>(() => loadFromDB(DB_KEYS.CART, []));
+
+  // --- Persistence Effects (Save on Change) ---
+
+  useEffect(() => {
+    saveToDB(DB_KEYS.STATIONS, stations);
+  }, [stations]);
+
+  useEffect(() => {
+    saveToDB(DB_KEYS.SESSIONS, sessions);
+  }, [sessions]);
+
+  useEffect(() => {
+    saveToDB(DB_KEYS.EXPENSES, expenses);
+  }, [expenses]);
+
+  useEffect(() => {
+    saveToDB(DB_KEYS.CREDITS, credits);
+  }, [credits]);
+
+  useEffect(() => {
+    saveToDB(DB_KEYS.CREDIT_TRANSACTIONS, creditTransactions);
+  }, [creditTransactions]);
+
+  useEffect(() => {
+    saveToDB(DB_KEYS.STORE_TRANSACTIONS, storeTransactions);
+  }, [storeTransactions]);
+
+  useEffect(() => {
+    saveToDB(DB_KEYS.CART, cart);
+  }, [cart]);
+
+
   // Expenses Form State
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [expenseForm, setExpenseForm] = useState({
@@ -53,15 +116,6 @@ const App: React.FC = () => {
   });
   const [storeQuantity, setStoreQuantity] = useState(1);
   const [storeUnitPrice, setStoreUnitPrice] = useState(0);
-  
-  // Store Cart State (New)
-  const [cart, setCart] = useState<Array<{
-    id: string;
-    name: string;
-    unitPrice: number;
-    quantity: number;
-    total: number;
-  }>>([]);
   
   // Confirmation Modal State
   const [confirmation, setConfirmation] = useState<{
