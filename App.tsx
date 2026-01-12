@@ -9,7 +9,7 @@ import AddDebtModal from './components/AddDebtModal';
 import ConfirmModal from './components/ConfirmModal';
 import { Station, Session, Expense, DailyStats, CONFIG, DEFAULT_STATIONS, EXPENSE_CATEGORIES, CreditEntry, CreditTransaction, StoreTransaction, QUICK_PRICES } from './types';
 import { formatCurrency, generateId } from './utils';
-import { TrendingUp, Wallet, Activity, AlertTriangle, PlusCircle, Trash2, Pencil, Save, X, Clock, Swords, Monitor, List, Users, Coffee, Gamepad, Gamepad2, Banknote, CheckCircle, RotateCcw, ShoppingBag, Plus, ChevronRight, Tags, FileText, Printer, ArrowDownCircle, ArrowUpCircle, Minus, ShoppingCart, RefreshCcw, Lock, ShieldCheck } from 'lucide-react';
+import { TrendingUp, Wallet, Activity, AlertTriangle, PlusCircle, Trash2, Pencil, Save, X, Clock, Swords, Monitor, List, Users, Coffee, Gamepad, Gamepad2, Banknote, CheckCircle, RotateCcw, ShoppingBag, Plus, ChevronRight, Tags, FileText, Printer, ArrowDownCircle, ArrowUpCircle, Minus, ShoppingCart, RefreshCcw, Lock } from 'lucide-react';
 
 const App: React.FC = () => {
   // --- Auth State ---
@@ -655,12 +655,12 @@ const App: React.FC = () => {
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4" dir="rtl">
          <div className="w-full max-w-md bg-slate-900/50 backdrop-blur-xl border border-slate-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
             {/* Background decorations */}
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl animate-pulse delay-700"></div>
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
             
             <div className="relative z-10 flex flex-col items-center">
                <div className="w-20 h-20 bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg mb-6 border border-slate-700">
-                  <ShieldCheck className="w-10 h-10 text-indigo-400" />
+                  <Lock className="w-10 h-10 text-indigo-400" />
                </div>
                
                <h1 className="text-3xl font-bold text-white mb-2">LARTISTE Manager</h1>
@@ -680,7 +680,7 @@ const App: React.FC = () => {
                   </div>
 
                   {authError && (
-                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold animate-pulse">
+                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">
                        {authError}
                     </div>
                   )}
@@ -760,7 +760,7 @@ const App: React.FC = () => {
 
         {/* --- VIEW: DASHBOARD (New Summary View) --- */}
         {activeTab === 'dashboard' && (
-           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto space-y-8">
+           <div className="max-w-5xl mx-auto space-y-8">
              <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                   <span className="w-2 h-8 bg-indigo-600 rounded-full inline-block"></span>
@@ -828,7 +828,7 @@ const App: React.FC = () => {
                      </div>
                    ) : (
                      // View 2: Detailed Sessions for Selected Station
-                     <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                     <div className="transition-all duration-300">
                         {(() => {
                           const station = stations.find(s => s.id === selectedDashboardStationId);
                           const stationSessions = sessions.filter(s => s.stationName === station?.name);
@@ -951,7 +951,7 @@ const App: React.FC = () => {
                       </div>
                    ) : (
                       // View 2: Detailed Expenses for Selected Category
-                      <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div className="transition-all duration-300">
                          {(() => {
                            const catExpenses = expenses.filter(e => e.category === selectedDashboardExpenseCategory);
                            const totalAmount = catExpenses.reduce((sum, e) => sum + e.amount, 0);
@@ -1023,7 +1023,7 @@ const App: React.FC = () => {
 
         {/* --- VIEW: FLOOR (Main) --- */}
         {activeTab === 'floor' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="transition-all duration-500">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <span className="w-2 h-8 bg-indigo-500 rounded-full inline-block"></span>
               الصالة المباشرة
@@ -1116,7 +1116,7 @@ const App: React.FC = () => {
 
         {/* --- VIEW: STORE --- */}
         {activeTab === 'store' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <span className="w-2 h-8 bg-amber-500 rounded-full inline-block"></span>
               المتجر (بيع مباشر)
@@ -1240,7 +1240,7 @@ const App: React.FC = () => {
                           </div>
                        ) : (
                           cart.map(item => (
-                             <div key={item.id} className="bg-slate-800 border border-slate-700 p-3 rounded-xl shadow-sm flex flex-col gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
+                             <div key={item.id} className="bg-slate-800 border border-slate-700 p-3 rounded-xl shadow-sm flex flex-col gap-2 transition-all duration-300">
                                 <div className="flex justify-between items-start">
                                    <div>
                                       <p className="font-bold text-white text-sm">{item.name}</p>
@@ -1322,7 +1322,7 @@ const App: React.FC = () => {
 
         {/* --- VIEW: CREDITS --- */}
         {activeTab === 'credits' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <span className="w-2 h-8 bg-purple-500 rounded-full inline-block"></span>
               سجل الديون (الكريدي)
@@ -1520,7 +1520,7 @@ const App: React.FC = () => {
 
         {/* --- VIEW: EXPENSES --- */}
         {activeTab === 'expenses' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto">
              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <span className="w-2 h-8 bg-red-500 rounded-full inline-block"></span>
               المصروفات
@@ -1601,7 +1601,7 @@ const App: React.FC = () => {
 
         {/* --- VIEW: REPORTS --- */}
         {activeTab === 'reports' && (
-           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto space-y-8 pb-12">
+           <div className="max-w-5xl mx-auto space-y-8 pb-12">
               <div className="flex justify-between items-center">
                  <h2 className="text-2xl font-bold flex items-center gap-2">
                   <span className="w-2 h-8 bg-yellow-500 rounded-full inline-block"></span>
